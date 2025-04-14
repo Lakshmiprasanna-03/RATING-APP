@@ -1,0 +1,169 @@
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { validationSchemas } from '../utils/validationSchemas';
+import { toast } from 'react-hot-toast';
+import Button from '../components/Button';
+
+const Signup = () => {
+  const { signup } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(validationSchemas.signup),
+    defaultValues: {
+      role: 'user',
+    },
+  });
+
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    try {
+      await signup(data);
+      toast.success('Account created successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to create account');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+          Create a new account
+        </h2>
+        <p className="mt-2 text-center text-sm text-gray-600">
+          Or{' '}
+          <Link
+            to="/login"
+            className="font-medium text-blue-600 hover:text-blue-500"
+          >
+            sign in to your existing account
+          </Link>
+        </p>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Full Name
+              </label>
+              <div className="mt-1">
+                <input
+                  {...register('name')}
+                  id="name"
+                  type="text"
+                  autoComplete="name"
+                  className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Email address
+              </label>
+              <div className="mt-1">
+                <input
+                  {...register('email')}
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.email.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  {...register('password')}
+                  id="password"
+                  type="password"
+                  autoComplete="new-password"
+                  className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                />
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-gray-500">
+                Password must be 8-16 characters with at least one uppercase letter and one special character.
+              </p>
+            </div>
+
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Account Type
+              </label>
+              <div className="mt-1">
+                <select
+                  {...register('role')}
+                  id="role"
+                  className="block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm"
+                >
+                  <option value="user">Normal User</option>
+                  <option value="storeOwner">Store Owner</option>
+                </select>
+                {errors.role && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.role.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Button
+                type="submit"
+                isLoading={isLoading}
+                className="w-full"
+              >
+                Create Account
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
